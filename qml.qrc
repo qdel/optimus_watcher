@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>nvidia-icon.png</file>
+        <file>nvidia-icon-gray.png</file>
+        <file>nvidia-icon-orange.png</file>
+    </qresource>
+</RCC>
