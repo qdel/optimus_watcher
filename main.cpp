@@ -4,8 +4,26 @@
 #include <QSystemTrayIcon>
 #include "decision.hpp"
 #include "bbswitcher.hpp"
+#include "runGuard.hpp"
 
-int main(int argc, char *argv[])
+RunGuard* guard = NULL;
+
+bool    takeGuard()
+{
+#ifndef NOGUARD
+  guard = new RunGuard("optimus_watcher");
+  if ( !guard->tryToRun() )
+    return false;
+#endif
+  return true;
+}
+
+void    releaseGuard()
+{
+  delete guard;
+}
+
+int run(int argc, char *argv[])
 {
     QApplication        app(argc, argv);
     bbswitchChecker     b;
@@ -24,6 +42,14 @@ int main(int argc, char *argv[])
                      &bsw, SLOT(poweron()));
     QObject::connect(d, SIGNAL(poweroff()),
                      &bsw, SLOT(poweroff()));
-    return app.exec();
+    int code = app.exec();
+    releaseGuard();
+    return code;
 }
 
+int main(int argc, char *argv[])
+{
+    if (takeGuard())
+        return run(argc, argv);
+    return 1;
+}

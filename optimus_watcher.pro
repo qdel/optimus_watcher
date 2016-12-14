@@ -7,7 +7,8 @@ CONFIG += c++11
 SOURCES += main.cpp \
     bbswitchchecker.cpp \
     decision.cpp \
-    bbswitcher.cpp
+    bbswitcher.cpp \
+    runGuard.cpp
 
 RESOURCES += qml.qrc
 
@@ -20,4 +21,5 @@ include(deployment.pri)
 HEADERS += \
     bbswitchchecker.hpp \
     decision.hpp \
-    bbswitcher.hpp
+    bbswitcher.hpp \
+    runGuard.hpp
