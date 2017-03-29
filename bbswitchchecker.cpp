@@ -1,15 +1,14 @@
 #include "bbswitchchecker.hpp"
 #include <QByteArray>
 #include <QStringList>
-#include <QDebug>
-#include <QDebug>
+#include "log.h"
 
 bbswitchChecker::bbswitchChecker(QObject *parent) : QObject(parent)
 {
     rexp = QRegExp(".*(\\[[ 0-9.]*\\]) (.*)");
     connect(&f, SIGNAL(readyRead()), this, SLOT(check()));
     connect(&t, SIGNAL(timeout()), this, SLOT(check()));
-    t.start(500);
+    t.start(1000);
     f.setFileName("/var/log/messages");
 }
 
@@ -20,7 +19,6 @@ void    bbswitchChecker::check()
   bool unknow = false;
   QString mode;
 
-  qDebug() << "begin of read";
   if (f.isOpen())
   {
     QByteArray b;
@@ -32,7 +30,7 @@ void    bbswitchChecker::check()
           {
             QByteArray line = rexp.cap(2).toUtf8();
 
-            qDebug() << "Read:" << line;
+            Log::addLog(QString() + "--: " + line);
             if (line == "bbswitch: disabling discrete graphics")
             {
                shouldBe = false;
@@ -67,7 +65,6 @@ void    bbswitchChecker::check()
             }
           }
         b = f.readLine();
-        qDebug() <<"reading...";
       }
     if (unknow)
       emit unknowState(foundBbinfo, shouldBe, mode);
@@ -76,10 +73,11 @@ void    bbswitchChecker::check()
   }
   else
   {
+     Log::addLog("ow:INFO:re-opening syslog file!");
      f.open(QFile::ReadOnly);
      if (!f.isOpen())
         // Warning
-        qDebug() << "cant't open syslog!";
+         Log::addLog("ow:ERROR:optimus_watcher can't open syslog!");
      else
      {
             unsigned int pos;
@@ -91,5 +89,4 @@ void    bbswitchChecker::check()
             this->check();
      }
   }
-  qDebug() << "End of read";
 }

@@ -5,6 +5,7 @@
 #include "decision.hpp"
 #include "bbswitcher.hpp"
 #include "runGuard.hpp"
+#include "log.h"
 
 RunGuard* guard = NULL;
 
@@ -30,12 +31,16 @@ int run(int argc, char *argv[])
     decision*           d;
     QSystemTrayIcon*    ic;
     bbswitcher          bsw;
+    Log                 l;
 
+    l.hide();
     ic = new QSystemTrayIcon(&app);
     d = new decision(&app);
     d->setSysTray(ic);
     QObject::connect(&b, SIGNAL(newState(bool)),
             d, SLOT(newState(bool)));
+    QObject::connect(ic, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+            &l, SLOT(activated(QSystemTrayIcon::ActivationReason)));
     QObject::connect(&b, SIGNAL(unknowState(bool,bool,QString)),
             d, SLOT(unknowState(bool,bool,QString)));
     QObject::connect(d, SIGNAL(poweron()),

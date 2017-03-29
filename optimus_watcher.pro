@@ -8,7 +8,8 @@ SOURCES += main.cpp \
     bbswitchchecker.cpp \
     decision.cpp \
     bbswitcher.cpp \
-    runGuard.cpp
+    runGuard.cpp \
+    log.cpp
 
 RESOURCES += qml.qrc
 
@@ -22,4 +23,8 @@ HEADERS += \
     bbswitchchecker.hpp \
     decision.hpp \
     bbswitcher.hpp \
-    runGuard.hpp
+    runGuard.hpp \
+    log.h
+
+FORMS += \
+    log.ui

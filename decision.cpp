@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QApplication>
 #include <QUrl>
+#include "log.h"
 
 decision::decision(QObject *parent) : QObject(parent)
 {
@@ -27,25 +28,25 @@ void decision::_tryCorrect(bool bbinfo, bool shouldbe, QString pciReport)
 {
     if (pciReport == "D0" && bbinfo && shouldbe == false && this->autoHandle->isChecked())
     {
-        qDebug() << "on then off because of D0 glitch";
+        Log::addLog("ow:INFO:on then off because of D0 glitch");
         emit poweron();
         emit poweroff();
     }
     else if (pciReport == "Wake Off" && this->autoHandle->isChecked())
     {
-        qDebug() << "on then off because of wakeup off";
+        Log::addLog("ow:INFO:on then off because of wakeup off");
         emit poweron();
         emit poweroff();
     }
     else if (pciReport == "Wake On" && this->autoHandle->isChecked())
     {
-        qDebug() << "on then off because of wakeup on";
+        Log::addLog("ow:INFO:on then off because of wakeup on");
         emit poweron();
         emit poweroff();
     }
     else if (pciReport == "??" && shouldbe == false && this->autoHandle->isChecked())
     {
-        qDebug() << "Try on then off";
+        Log::addLog("ow:INFO:Try on then off");
         emit poweron();
         emit poweroff();
     }
