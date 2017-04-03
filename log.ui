@@ -13,12 +13,25 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="qml.qrc">
+    <normaloff>:/nvidia-icon.png</normaloff>
+    <normalon>:/nvidia-icon.png</normalon>
+    <disabledoff>:/nvidia-icon.png</disabledoff>
+    <disabledon>:/nvidia-icon.png</disabledon>
+    <activeoff>:/nvidia-icon.png</activeoff>
+    <activeon>:/nvidia-icon.png</activeon>
+    <selectedoff>:/nvidia-icon.png</selectedoff>
+    <selectedon>:/nvidia-icon.png</selectedon>:/nvidia-icon.png</iconset>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QPlainTextEdit" name="l"/>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="qml.qrc"/>
+ </resources>
  <connections/>
 </ui>

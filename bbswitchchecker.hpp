@@ -23,6 +23,7 @@ private:
     QFile   f;
     QRegExp rexp;
     QTimer  t;
+    QTimer  tRestart;
 };
 
 #endif // BBSWITCHCHECKER_H

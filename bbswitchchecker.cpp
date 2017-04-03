@@ -8,8 +8,12 @@ bbswitchChecker::bbswitchChecker(QObject *parent) : QObject(parent)
     rexp = QRegExp(".*(\\[[ 0-9.]*\\]) (.*)");
     connect(&f, SIGNAL(readyRead()), this, SLOT(check()));
     connect(&t, SIGNAL(timeout()), this, SLOT(check()));
+    connect(&tRestart, SIGNAL(timeout()), this, SLOT(check()));
     t.start(1000);
+    tRestart.setInterval(1000 * 3600);
+    tRestart.start();
     f.setFileName("/var/log/messages");
+    QTimer::singleShot(0, this, SIGNAL(check()));
 }
 
 void    bbswitchChecker::check()
@@ -19,10 +23,26 @@ void    bbswitchChecker::check()
   bool unknow = false;
   QString mode;
 
+  if (this->sender() == &f)
+      Log::addLog(QString() + "ow: trigger by file");
+  else if (this->sender() == &t)
+      Log::addLog(QString() + "ow: trigger by tempo");
+  else if (this->sender() == &tRestart)
+      Log::addLog(QString() + "ow: trigger by tempoRestart");
   if (f.isOpen())
   {
+
+    Log::addLog(QString() + "ow: file is open");
     QByteArray b;
     b = f.readLine();
+    if (b.size() == 0 && this->sender() == &tRestart)
+    {
+        Log::addLog(QString() + "ow: file is open, but no log since 1m, try re-open...");
+        f.close();
+        QTimer::singleShot(0, this, SIGNAL(check()));
+    }
+    else if (b.size() != 0)
+        tRestart.start();
     while (b.length())
       {
         int pos = rexp.indexIn(b.trimmed());
@@ -30,12 +50,18 @@ void    bbswitchChecker::check()
           {
             QByteArray line = rexp.cap(2).toUtf8();
 
-            Log::addLog(QString() + "--: " + line);
+            Log::addLog(QString() + "lm: " + line);
             if (line == "bbswitch: disabling discrete graphics")
             {
                shouldBe = false;
                foundBbinfo = true;
                unknow = false;
+            }
+            else if (line == "bbswitch: device 0000:01:00.0 is in use by driver 'nvidia', refusing OFF")
+            {
+                shouldBe = true;
+                foundBbinfo = true;
+                unknow = false;
             }
             else if (line == "bbswitch: enabling discrete graphics")
               {
@@ -86,7 +112,7 @@ void    bbswitchChecker::check()
             if (pos > 0)
                 f.seek(pos);
             emit unknowState(false, false, "??");
-            this->check();
+            QTimer::singleShot(0, this, SIGNAL(check()));
      }
   }
 }
