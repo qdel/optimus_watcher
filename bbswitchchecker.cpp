@@ -25,14 +25,14 @@ void    bbswitchChecker::check()
 
   if (this->sender() == &f)
       Log::addLog(QString() + "ow: trigger by file");
-  else if (this->sender() == &t)
-      Log::addLog(QString() + "ow: trigger by tempo");
+//  else if (this->sender() == &t)
+//      Log::addLog(QString() + "ow: trigger by tempo");
   else if (this->sender() == &tRestart)
       Log::addLog(QString() + "ow: trigger by tempoRestart");
   if (f.isOpen())
   {
 
-    Log::addLog(QString() + "ow: file is open");
+//    Log::addLog(QString() + "ow: file is open");
     QByteArray b;
     b = f.readLine();
     if (b.size() == 0 && this->sender() == &tRestart)
