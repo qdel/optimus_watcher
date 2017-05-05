@@ -9,7 +9,8 @@ SOURCES += main.cpp \
     decision.cpp \
     bbswitcher.cpp \
     runGuard.cpp \
-    log.cpp
+    log.cpp \
+    battlenetchecker.cpp
 
 RESOURCES += qml.qrc
 
@@ -24,7 +25,8 @@ HEADERS += \
     decision.hpp \
     bbswitcher.hpp \
     runGuard.hpp \
-    log.h
+    log.h \
+    battlenetchecker.hpp
 
 FORMS += \
     log.ui

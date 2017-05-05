@@ -12,6 +12,8 @@ decision::decision(QObject *parent) : QObject(parent)
     this->autoHandle = m.addAction("auto correct");
     this->autoHandle->setCheckable(true);
     this->autoHandle->setChecked(true);
+    this->cleanBnet = m.addAction("Clean Bnet", this, SIGNAL(bnetClean()));
+    this->cleanBnet->setCheckable(false);
     this->exit = m.addAction("exit",QApplication::instance(), SLOT(quit()));
 }
 
@@ -72,4 +74,9 @@ void decision::setSysTray(QSystemTrayIcon* ic)
     this->_ic->setIcon(unknow);
     this->_ic->setVisible(true);
     this->_ic->show();
+}
+
+void    decision::showNotif(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon icon, int millisecondsTimeoutHint)
+{
+    this->_ic->showMessage(title, message, icon, millisecondsTimeoutHint);
 }

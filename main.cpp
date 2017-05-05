@@ -6,6 +6,7 @@
 #include "bbswitcher.hpp"
 #include "runGuard.hpp"
 #include "log.h"
+#include "battlenetchecker.hpp"
 
 RunGuard* guard = NULL;
 
@@ -27,6 +28,7 @@ void    releaseGuard()
 int run(int argc, char *argv[])
 {
     QApplication        app(argc, argv);
+    BattlenetChecker    bnetc;
     bbswitchChecker     b;
     decision*           d;
     QSystemTrayIcon*    ic;
@@ -47,6 +49,12 @@ int run(int argc, char *argv[])
                      &bsw, SLOT(poweron()));
     QObject::connect(d, SIGNAL(poweroff()),
                      &bsw, SLOT(poweroff()));
+    QObject::connect(&bnetc, SIGNAL(msg(QString,QString,QSystemTrayIcon::MessageIcon,int)),
+                     d, SLOT(showNotif(QString,QString,QSystemTrayIcon::MessageIcon,int)));
+    QObject::connect(d, SIGNAL(bnetClean()),
+                     &bnetc, SLOT(bnetClean()));
+    QObject::connect(&b, SIGNAL(newState(bool)),
+            &bnetc, SLOT(newState(bool)));
     int code = app.exec();
     releaseGuard();
     return code;
