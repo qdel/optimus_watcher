@@ -22,6 +22,7 @@ public slots:
   void newState(bool st);
   void unknowState(bool bbinfo, bool shouldbe, QString pciReport);
   void showNotif(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon icon, int millisecondsTimeoutHint);
+  void glxgears();
 
 private:
   void  _tryCorrect(bool,bool,QString);
@@ -29,6 +30,7 @@ private:
   QMenu m;
   QAction*   autoHandle;
   QAction*   cleanBnet;
+  QAction*   glx;
   QAction*   exit;
   QIcon on;
   QIcon off;

@@ -2,6 +2,7 @@
 #include <QByteArray>
 #include <QStringList>
 #include "log.h"
+#include <QProcess>
 
 bbswitchChecker::bbswitchChecker(QObject *parent) : QObject(parent)
 {
@@ -57,6 +58,13 @@ void    bbswitchChecker::check()
                foundBbinfo = true;
                unknow = false;
             }
+            if (line == "bbswitch: Succesfully loaded. Discrete card 0000:01:00.0 is on" ||
+                line == "bbswitch: Unloaded. Discrete card 0000:01:00.0 is on")
+            {
+                shouldBe = true;
+                foundBbinfo = true;
+                unknow = false;
+            }
             else if (line == "bbswitch: device 0000:01:00.0 is in use by driver 'nvidia', refusing OFF")
             {
                 shouldBe = true;
@@ -88,6 +96,15 @@ void    bbswitchChecker::check()
             {
                 unknow = true;
                 mode = "Wake On";
+            }
+            else if (line.contains("bbswitch_proc_write"))
+            {
+                unknow = true;
+                foundBbinfo = false;
+                shouldBe = false;
+                mode = "D0";
+                Log::addLog("ow:INFO:reloading bbswitch module");
+                QProcess::execute("sudo modprobe -r bbswitch ; sudo modprobe bbswitch");
             }
           }
         b = f.readLine();

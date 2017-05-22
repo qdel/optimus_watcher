@@ -3,9 +3,19 @@
 #include <QApplication>
 #include <QUrl>
 #include "log.h"
+#include <QProcess>
+
+QProcess pglx;
 
 decision::decision(QObject *parent) : QObject(parent)
 {
+    QStringList l;
+
+    l << "glxgears" << "-info";
+    pglx.setProgram("/usr/bin/primusrun");
+    pglx.setArguments(l);
+    pglx.setProcessChannelMode(QProcess::MergedChannels);
+    pglx.setStandardOutputFile("/tmp/glxgears", QProcess::Append);
     on = QIcon(":/nvidia-icon.png");
     off = QIcon(":/nvidia-icon-gray.png");
     unknow = QIcon(":/nvidia-icon-orange.png");
@@ -14,7 +24,18 @@ decision::decision(QObject *parent) : QObject(parent)
     this->autoHandle->setChecked(true);
     this->cleanBnet = m.addAction("Clean Bnet", this, SIGNAL(bnetClean()));
     this->cleanBnet->setCheckable(false);
+    this->glx = m.addAction("glxgears", this, SLOT(glxgears()));
+    this->glx->setCheckable(true);
     this->exit = m.addAction("exit",QApplication::instance(), SLOT(quit()));
+}
+
+void    decision::glxgears()
+{
+    qDebug() << "glx" << this->glx->isChecked();
+    if (this->glx->isChecked())
+        pglx.start();
+    else
+        pglx.kill();
 }
 
 void decision::newState(bool st)
