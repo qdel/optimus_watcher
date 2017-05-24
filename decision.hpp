@@ -5,6 +5,7 @@
 #include <QSystemTrayIcon>
 #include <QMenu>
 #include <QAction>
+#include <QTimer>
 
 class decision : public QObject
 {
@@ -23,6 +24,9 @@ public slots:
   void unknowState(bool bbinfo, bool shouldbe, QString pciReport);
   void showNotif(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon icon, int millisecondsTimeoutHint);
   void glxgears();
+  void getprocesses();
+  void analyze(int);
+  void kill();
 
 private:
   void  _tryCorrect(bool,bool,QString);
@@ -30,11 +34,16 @@ private:
   QMenu m;
   QAction*   autoHandle;
   QAction*   cleanBnet;
+  QAction*   processes;
   QAction*   glx;
   QAction*   exit;
+  QTimer     poll;
   QIcon on;
   QIcon off;
   QIcon unknow;
+  QMap<unsigned int, QString>   _processes;
+  QMap<QAction*, unsigned int>  _processesActions;
+
 };
 
 #endif // DECISION_H

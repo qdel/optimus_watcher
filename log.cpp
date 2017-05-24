@@ -1,5 +1,6 @@
 #include "log.h"
 #include "ui_log.h"
+#include <QDebug>
 
 Log*    log = NULL;
 
@@ -19,6 +20,7 @@ Log::~Log()
 
 void Log::addLog(const QString& l)
 {
+    qDebug() << l;
     log->ui->l->appendPlainText(l);
 }
 

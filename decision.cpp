@@ -6,6 +6,7 @@
 #include <QProcess>
 
 QProcess pglx;
+QProcess pprocs;
 
 decision::decision(QObject *parent) : QObject(parent)
 {
@@ -14,12 +15,14 @@ decision::decision(QObject *parent) : QObject(parent)
     l << "glxgears" << "-info";
     pglx.setProgram("/usr/bin/primusrun");
     pglx.setArguments(l);
+    pprocs.setProgram("/home/rholk/sbin/nvprocess");
     pglx.setProcessChannelMode(QProcess::MergedChannels);
     pglx.setStandardOutputFile("/tmp/glxgears", QProcess::Append);
     on = QIcon(":/nvidia-icon.png");
     off = QIcon(":/nvidia-icon-gray.png");
     unknow = QIcon(":/nvidia-icon-orange.png");
     this->autoHandle = m.addAction("auto correct");
+    this->processes = m.insertSeparator(this->autoHandle);
     this->autoHandle->setCheckable(true);
     this->autoHandle->setChecked(true);
     this->cleanBnet = m.addAction("Clean Bnet", this, SIGNAL(bnetClean()));
@@ -27,6 +30,79 @@ decision::decision(QObject *parent) : QObject(parent)
     this->glx = m.addAction("glxgears", this, SLOT(glxgears()));
     this->glx->setCheckable(true);
     this->exit = m.addAction("exit",QApplication::instance(), SLOT(quit()));
+    this->poll.setInterval(2000);
+    connect(&(this->poll), SIGNAL(timeout()),
+            this, SLOT(getprocesses()));
+    connect(&pprocs, SIGNAL(finished(int)),
+            this, SLOT(analyze(int)));
+}
+
+void    decision::kill()
+{
+    QAction*    act = dynamic_cast<QAction*>(this->sender());
+
+    if (this->_processesActions.contains(act))
+    {
+        QString cmd;
+
+        cmd = QString() + "sudo kill -9 " + QString::number(this->_processesActions[act]);
+        this->showNotif("Optimus", "Killing " + this->_processes[this->_processesActions[act]] + "\n" + cmd, QSystemTrayIcon::Information, 5000);
+        QProcess::startDetached(cmd);
+    }
+}
+
+void    decision::analyze(int)
+{
+    QMap<unsigned int, QString> procs;
+
+    while (true)
+    {
+        QByteArray sl = pprocs.readLine().trimmed();
+        if (sl.size() == 0)
+            break ;
+        QList<QByteArray> slist = sl.split(';');
+        if (slist.size() >= 2)
+            procs[QString(slist[0]).toUInt()] = slist[1];
+    }
+    qDebug() << procs;
+    for (QMap<unsigned int, QString>::iterator it = procs.begin(); it != procs.end(); it++)
+    {
+        if (this->_processes.contains(it.key()) == false)
+        {
+            // adding
+            Log::addLog(QString() + "ow:INFO:Adding new process:" + QString::number(it.key()) + " " + it.value());
+
+            this->_processes[it.key()] = it.value();
+            QAction * act = m.addAction(it.value(), this, SLOT(kill()));
+            m.insertAction(this->processes, act);
+            this->_processesActions[act] = it.key();
+        }
+    }
+    QMap<QAction*, unsigned int>::iterator it = this->_processesActions.begin();
+    while (it != this->_processesActions.end())
+    {
+        if (procs.contains(it.value()) == false)
+        {
+            Log::addLog(QString() + "ow:INFO:removing old process: " + QString::number(it.value()));
+            delete it.key();
+            qDebug() << "deleted";
+            _processes.remove(it.value());
+            qDebug() << "_processesActions";
+
+            _processesActions.remove(it.key());
+            qDebug() << " new it";
+
+            it = this->_processesActions.begin();
+        }
+        else
+            it++;
+    }
+}
+
+void    decision::getprocesses()
+{
+    if (pprocs.state() != QProcess::Running)
+        pprocs.start();
 }
 
 void    decision::glxgears()
@@ -41,9 +117,15 @@ void    decision::glxgears()
 void decision::newState(bool st)
 {
   if (st)
+  {
+      this->poll.start();
       this->_ic->setIcon(on);
+  }
   else
+  {
+      this->poll.stop();
       this->_ic->setIcon(off);
+  }
   this->_ic->show();
 }
 
@@ -85,7 +167,6 @@ void decision::unknowState(bool bbinfo, bool shouldbe, QString pciReport)
     this->_ic->setIcon(unknow);
     this->_ic->show();
     this->_tryCorrect(bbinfo, shouldbe, pciReport);
-
 }
 
 void decision::setSysTray(QSystemTrayIcon* ic)
