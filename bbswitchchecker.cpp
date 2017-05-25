@@ -104,7 +104,8 @@ void    bbswitchChecker::check()
                 shouldBe = false;
                 mode = "D0";
                 Log::addLog("ow:INFO:reloading bbswitch module");
-                QProcess::execute("sudo modprobe -r bbswitch ; sudo modprobe bbswitch");
+                QProcess::execute("sudo modprobe -r bbswitch");
+                QProcess::execute("sudo modprobe bbswitch");
             }
           }
         b = f.readLine();

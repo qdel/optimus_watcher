@@ -27,6 +27,7 @@ public slots:
   void getprocesses();
   void analyze(int);
   void kill();
+  void purge();
 
 private:
   void  _tryCorrect(bool,bool,QString);
@@ -37,6 +38,7 @@ private:
   QAction*   processes;
   QAction*   glx;
   QAction*   exit;
+  QAction*   purgeaction;
   QTimer     poll;
   QIcon on;
   QIcon off;

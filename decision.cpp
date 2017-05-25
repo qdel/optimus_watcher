@@ -23,6 +23,9 @@ decision::decision(QObject *parent) : QObject(parent)
     unknow = QIcon(":/nvidia-icon-orange.png");
     this->autoHandle = m.addAction("auto correct");
     this->processes = m.insertSeparator(this->autoHandle);
+    this->purgeaction = m.addAction("--Purge ALL--", this, SLOT(purge()));
+    m.insertAction(this->processes, this->purgeaction);
+    this->processes = m.insertSeparator(this->autoHandle);
     this->autoHandle->setCheckable(true);
     this->autoHandle->setChecked(true);
     this->cleanBnet = m.addAction("Clean Bnet", this, SIGNAL(bnetClean()));
@@ -35,6 +38,20 @@ decision::decision(QObject *parent) : QObject(parent)
             this, SLOT(getprocesses()));
     connect(&pprocs, SIGNAL(finished(int)),
             this, SLOT(analyze(int)));
+}
+
+void    decision::purge()
+{
+    QMap<QAction*, unsigned int>::iterator it = this->_processesActions.begin();
+    while (it != this->_processesActions.end())
+    {
+        QString cmd;
+
+        cmd = QString() + "sudo kill -9 " + QString::number(it.value());
+        this->showNotif("Optimus", "Killing " + this->_processes[it.value()] + "\n" + cmd, QSystemTrayIcon::Information, 5000);
+        QProcess::startDetached(cmd);
+        it++;
+    }
 }
 
 void    decision::kill()
@@ -74,7 +91,7 @@ void    decision::analyze(int)
 
             this->_processes[it.key()] = it.value();
             QAction * act = m.addAction(it.value(), this, SLOT(kill()));
-            m.insertAction(this->processes, act);
+            m.insertAction(this->purgeaction, act);
             this->_processesActions[act] = it.key();
         }
     }
