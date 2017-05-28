@@ -65,6 +65,12 @@ void    bbswitchChecker::check()
                 foundBbinfo = true;
                 unknow = false;
             }
+            else if (line == "bbswitch: Succesfully loaded. Discrete card 0000:01:00.0 is off")
+            {
+                shouldBe = false;
+                foundBbinfo = true;
+                unknow = false;
+            }
             else if (line == "bbswitch: device 0000:01:00.0 is in use by driver 'nvidia', refusing OFF")
             {
                 shouldBe = true;
