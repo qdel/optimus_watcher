@@ -65,7 +65,8 @@ void    bbswitchChecker::check()
                 foundBbinfo = true;
                 unknow = false;
             }
-            else if (line == "bbswitch: Succesfully loaded. Discrete card 0000:01:00.0 is off")
+            else if (line == "bbswitch: Succesfully loaded. Discrete card 0000:01:00.0 is off" ||
+                     line == "bbswitch: Unloaded. Discrete card 0000:01:00.0 is off")
             {
                 shouldBe = false;
                 foundBbinfo = true;
@@ -96,11 +97,13 @@ void    bbswitchChecker::check()
             else if (line == "OUT OF SLEEP, NVIDIA CARD SHOULD BE OFF")
             {
                 unknow = true;
+                shouldBe = false;
                 mode = "Wake Off";
             }
             else if (line == "OUT OF SLEEP, NVIDIA CARD SHOULD BE ON")
             {
                 unknow = true;
+                shouldBe = false;
                 mode = "Wake On";
             }
             else if (line.contains("bbswitch_proc_write"))
@@ -132,7 +135,7 @@ void    bbswitchChecker::check()
      {
             unsigned int pos;
 
-            pos = f.size() - 500;
+            pos = f.size() - 2000;
             if (pos > 0)
                 f.seek(pos);
             emit unknowState(false, false, "??");

@@ -30,6 +30,8 @@ void    bbswitcher::poweron()
         Log::addLog("ow:ERROR:COULD NOT WRITE ON");
     this->f.close();
   }
+  else
+    Log::addLog("ow:INFO:Nothing, locked...");
 }
 
 void    bbswitcher::poweroff()
@@ -42,4 +44,6 @@ void    bbswitcher::poweroff()
           Log::addLog("ow:ERROR:COULD NOT WRITE OFF");
       this->f.close();
     }
+    else
+      Log::addLog("ow:INFO:Nothing, locked...");
 }

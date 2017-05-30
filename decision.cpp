@@ -137,11 +137,13 @@ void decision::newState(bool st)
   {
       this->poll.start();
       this->_ic->setIcon(on);
+      system("sudo touch /tmp/nvidiaunsafe");
   }
   else
   {
       this->poll.stop();
       this->_ic->setIcon(off);
+      system("sudo rm /tmp/nvidiaunsafe");
   }
   this->_ic->show();
 }
@@ -163,8 +165,8 @@ void decision::_tryCorrect(bool bbinfo, bool shouldbe, QString pciReport)
     else if (pciReport == "Wake On" && this->autoHandle->isChecked())
     {
         Log::addLog("ow:INFO:on then off because of wakeup on");
-        emit poweron();
-        emit poweroff();
+        QTimer::singleShot(2000, this, SIGNAL(poweron()));
+        QTimer::singleShot(2300, this, SIGNAL(poweroff()));
     }
     else if (pciReport == "??" && shouldbe == false && this->autoHandle->isChecked())
     {
@@ -184,6 +186,7 @@ void decision::unknowState(bool bbinfo, bool shouldbe, QString pciReport)
     this->_ic->setIcon(unknow);
     this->_ic->show();
     this->_tryCorrect(bbinfo, shouldbe, pciReport);
+    system("sudo touch /tmp/nvidiaunsafe");
 }
 
 void decision::setSysTray(QSystemTrayIcon* ic)
