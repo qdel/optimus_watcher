@@ -31,7 +31,7 @@ decision::decision(QObject *parent) : QObject(parent)
     this->cleanBnet = m.addAction("Clean Bnet", this, SIGNAL(bnetClean()));
     this->cleanBnet->setCheckable(false);
     this->glx = m.addAction("glxgears", this, SLOT(glxgears()));
-    this->glx->setCheckable(true);
+    this->glx->setCheckable(false);
     this->exit = m.addAction("exit",QApplication::instance(), SLOT(quit()));
     this->poll.setInterval(2000);
     connect(&(this->poll), SIGNAL(timeout()),
@@ -124,11 +124,10 @@ void    decision::getprocesses()
 
 void    decision::glxgears()
 {
-    qDebug() << "glx" << this->glx->isChecked();
-    if (this->glx->isChecked())
-        pglx.start();
-    else
+    if (pglx.state() == QProcess::Running)
         pglx.kill();
+    else
+        pglx.start();
 }
 
 void decision::newState(bool st)
