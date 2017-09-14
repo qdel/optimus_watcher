@@ -26,14 +26,11 @@ void    bbswitchChecker::check()
 
   if (this->sender() == &f)
       Log::addLog(QString() + "ow: trigger by file");
-//  else if (this->sender() == &t)
-//      Log::addLog(QString() + "ow: trigger by tempo");
   else if (this->sender() == &tRestart)
       Log::addLog(QString() + "ow: trigger by tempoRestart");
   if (f.isOpen())
   {
 
-//    Log::addLog(QString() + "ow: file is open");
     QByteArray b;
     b = f.readLine();
     if (b.size() == 0 && this->sender() == &tRestart)
@@ -105,6 +102,20 @@ void    bbswitchChecker::check()
                 unknow = true;
                 shouldBe = false;
                 mode = "Wake On";
+            }
+            else if (line == "nouveau 0000:01:00.0: DRM: resuming object tree..." ||
+                     line == "nouveau 0000:01:00.0: DRM: resuming fence...")
+            {
+                shouldBe = true;
+                foundBbinfo = true;
+                unknow = false;
+            }
+            else if (line == "nouveau 0000:01:00.0: DRM: suspending object tree..." ||
+                     line == "nouveau 0000:01:00.0: DRM: suspending fence...")
+            {
+                shouldBe = false;
+                foundBbinfo = true;
+                unknow = false;
             }
             else if (line.contains("bbswitch_proc_write"))
             {
