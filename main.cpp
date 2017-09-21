@@ -62,6 +62,7 @@ int run(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+    qDebug() << QT_VERSION_STR << qVersion();
     if (takeGuard())
         return run(argc, argv);
     return 1;
