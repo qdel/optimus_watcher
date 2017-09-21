@@ -11,6 +11,7 @@ QProcess pprocs;
 decision::decision(QObject *parent) : QObject(parent)
 {
     QStringList l;
+    QAction     *tmp;
 
     l << "glxgears" << "-info";
     pglx.setProgram("/usr/bin/primusrun");
@@ -23,8 +24,11 @@ decision::decision(QObject *parent) : QObject(parent)
     unknow = QIcon(":/nvidia-icon-orange.png");
     this->autoHandle = m.addAction("auto correct");
     this->processes = m.insertSeparator(this->autoHandle);
-    this->purgeaction = m.addAction("--Purge ALL--", this, SLOT(purge()));
-    m.insertAction(this->processes, this->purgeaction);
+    tmp = m.addAction("--Purge ALL--", this, SLOT(purge()));
+    m.insertAction(this->processes, tmp);
+    this->purgeaction = new QMenu("Processes");
+    this->purgeaction->setProperty("lol", "toto");
+    m.insertMenu(tmp, this->purgeaction);
     this->processes = m.insertSeparator(this->autoHandle);
     this->autoHandle->setCheckable(true);
     this->autoHandle->setChecked(true);
@@ -34,6 +38,7 @@ decision::decision(QObject *parent) : QObject(parent)
     this->glx->setCheckable(false);
     this->exit = m.addAction("exit",QApplication::instance(), SLOT(quit()));
     this->poll.setInterval(2000);
+    this->purgeaction->setEnabled(false);
     connect(&(this->poll), SIGNAL(timeout()),
             this, SLOT(getprocesses()));
     connect(&pprocs, SIGNAL(finished(int)),
@@ -81,7 +86,6 @@ void    decision::analyze(int)
         if (slist.size() >= 2)
             procs[QString(slist[0]).toUInt()] = slist[1];
     }
-    qDebug() << procs;
     for (QMap<unsigned int, QString>::iterator it = procs.begin(); it != procs.end(); it++)
     {
         if (this->_processes.contains(it.key()) == false)
@@ -90,8 +94,11 @@ void    decision::analyze(int)
             Log::addLog(QString() + "ow:INFO:Adding new process:" + QString::number(it.key()) + " " + it.value());
 
             this->_processes[it.key()] = it.value();
-            QAction * act = m.addAction(it.value(), this, SLOT(kill()));
-            m.insertAction(this->purgeaction, act);
+            QAction * act = new QAction(it.value());
+            connect(act, SIGNAL(triggered(bool)),
+                    this, SLOT(kill()));
+            qDebug() << "Inserting" << act << "before" << this->purgeaction;
+            this->purgeaction->insertAction(NULL, act);
             this->_processesActions[act] = it.key();
         }
     }
@@ -102,18 +109,17 @@ void    decision::analyze(int)
         {
             Log::addLog(QString() + "ow:INFO:removing old process: " + QString::number(it.value()));
             delete it.key();
-            qDebug() << "deleted";
             _processes.remove(it.value());
-            qDebug() << "_processesActions";
-
             _processesActions.remove(it.key());
-            qDebug() << " new it";
-
             it = this->_processesActions.begin();
         }
         else
             it++;
     }
+    if (this->purgeaction->actions().size())
+        this->purgeaction->setEnabled(true);
+    else
+        this->purgeaction->setEnabled(false);
 }
 
 void    decision::getprocesses()

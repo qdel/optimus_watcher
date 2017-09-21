@@ -38,7 +38,7 @@ private:
   QAction*   processes;
   QAction*   glx;
   QAction*   exit;
-  QAction*   purgeaction;
+  QMenu*     purgeaction;
   QTimer     poll;
   QIcon on;
   QIcon off;
